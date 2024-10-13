@@ -230,24 +230,23 @@ T Matrix<T>::det(const Matrix<T>& m){
                 size_t j = i + 1;
                 bool found_pivot = false;
                 while(!found_pivot && j < copy.columns){
-                    if(copy.data[i * copy.columns + i] != 0){
+                    if(copy.data[j * copy.columns + i] != 0){
                         copy.swapRows(i, j);
                         found_pivot = true;
+                        det *= -1;
                     }
                     j++;
                 }
 
                 if(!found_pivot) return 0;
+            }
 
-                det *= copy.data[i * copy.columns + i];
-                for(size_t j = i + 1; j < copy.rows; j++){
-                    copy.addRow(j, i, -(copy.data[i * copy.columns + j] / copy.data[i * copy.columns + i]));
-                }
-
-                std::cout << copy << std::endl;
+            det *= copy.data[i * copy.columns + i];
+            for(size_t j = i + 1; j < copy.rows; j++){
+                copy.addRow(j, i, -(copy.data[j * copy.columns + i] / copy.data[i * copy.columns + i]));
             }
         }
-        return det;
+        return det * copy.data[m.rows * m.rows - 1];
     }
 }
 
