@@ -10,11 +10,9 @@ Matrix<T>::Matrix(size_t n, size_t m, T val){
     this -> rows = n;
     this -> columns = m;
 
-    this -> data = new T*[n];
-    for(size_t i = 0; i < n; i++){
-        this -> data[i] = new T[m];
-        for(size_t j = 0; j < m; j++)
-            this -> data[i][j] = val;
+    this -> data = new T[n * m];
+    for(size_t i = 0; i < n * m; i++){
+            this -> data[i] = val;
     }
 }
 
@@ -25,13 +23,14 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& matrix)
     if(this -> rows){
         this -> columns = matrix.begin() -> size();
         
-        this -> data = new T*[this -> rows];
+        this -> data = new T[this -> rows * this -> columns];
 
         size_t i = 0;
         for(std::initializer_list row: matrix){
-            this -> data[i] = new T[this -> columns];
-            std::copy(row.begin(), row.end(), this -> data[i]);
-            i++;
+            for(T element: row){
+                this -> data[i] = element;
+                i++;
+            }
         }
     } else{
         this -> columns = 0;
@@ -43,45 +42,26 @@ template <typename T>
 Matrix<T>::Matrix(const Matrix<T>& m){
     this -> rows = m.rows;
     this -> columns = m.columns;
-    this -> data = new T*[this -> rows];
+    this -> data = new T[m.rows * m.columns];
 
-    for(size_t i = 0; i < this -> rows; i++){
-        this -> data[i] = new T[this -> columns];
-        for(size_t j = 0; j < this -> columns; j++){
-            this -> data[i][j] = m.data[i][j];
-        }
-    }
+    for(size_t i = 0; i < this -> rows * this -> columns; i++)
+        this -> data[i] = m.data[i];
+    
 }
 
 template <typename T>
 void Matrix<T>::operator=(const Matrix<T>& m){
     if(this -> data != nullptr) {
-        for(size_t i = 0; i < this -> rows; i++) {
-            delete[] this -> data[i];
-            this -> data[i] = nullptr;
-        }
         delete[] this -> data;
         this -> data = nullptr;
     }
 
-    this -> rows = m.rows;
-    this -> columns = m.columns;
-    this -> data = new T*[this -> rows];
-    for(size_t i = 0; i < this -> rows; i++){
-            this -> data[i] = new T[this -> columns];
-            for(size_t j = 0; j < this -> columns; j++){
-                this -> data[i][j] = m.data[i][j];
-            }
-        }
+    *this = Matrix<T>(m);
 }
 
 template <typename T>
 void Matrix<T>::operator=(const std::initializer_list<std::initializer_list<T>>& matrix){
     if(this -> data != nullptr) {
-        for(size_t i = 0; i < this -> rows; i++) {
-            delete[] this -> data[i];
-            this -> data[i] = nullptr;
-        }
         delete[] this -> data;
         this -> data = nullptr;
     }
@@ -95,11 +75,8 @@ void Matrix<T>::operator=(Matrix<T>&& m){
     this -> columns = m.columns;
 
     if(this -> data != nullptr) {
-        for(size_t i = 0; i < this -> rows; i++) {
-            delete[] this -> data[i];
-            this -> data[i] = nullptr;
-        }
         delete[] this -> data;
+        this -> data = nullptr;
     }
 
     this -> data = m.data;
@@ -107,6 +84,7 @@ void Matrix<T>::operator=(Matrix<T>&& m){
     m.data = nullptr;
 }
 
+// ----------------------------------------------------------------------
 template<typename T>
 Matrix<T> Matrix<T>::identity(size_t n){
 
@@ -115,10 +93,10 @@ Matrix<T> Matrix<T>::identity(size_t n){
     id.rows = n;
     id.columns = n;
 
-    id.data = new T*[n];
+    id.data = new T[n * n];
     for(size_t i = 0; i < n; i++){
-        id.data[i] = new T[n];
-        for(size_t j = 0; j < n; j++) id.data[i][j] = (T)(i == j);
+        for(size_t j = 0; j < n; j++) 
+            id.data[i * id.columns + j] = (T)(i == j);
     }
 
     return id;
@@ -127,7 +105,7 @@ Matrix<T> Matrix<T>::identity(size_t n){
 template<typename T>
 T* Matrix<T>::operator[](size_t index){
     if(index > this -> rows) throw "Index out of bounds";
-    return this -> data[index];
+    return &(this -> data[index * this -> columns]);
 }
 
 template<typename T>
@@ -141,11 +119,8 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& m){
     if(this -> rows != m.rows || this -> columns != m.columns) throw "Invalid operation: can't sum matrices of different dimensions";
 
     Matrix result(this -> rows, this -> columns);
-    for(size_t i = 0; i < result.rows; i++){
-        for(size_t j = 0; j < result.columns; j++){
-            result.data[i][j] =this -> data[i][j] + m.data[i][j];
-        }
-    }
+    for(size_t i = 0; i < result.rows * result.columns; i++)
+        result.data[i] = this -> data[i] + m.data[i];
 
     return result;
 }
@@ -154,11 +129,8 @@ template<typename T>
 Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& m){
     if(this -> rows != m.rows || this -> columns != m.columns) throw "Invalid operation: can't sum matrices of different dimensions";
 
-    for(size_t i = 0; i < this -> rows; i++){
-        for(size_t j = 0; j < this -> columns; j++){
-            (this -> data[i][j]) += m.data[i][j];
-        }
-    }
+    for(size_t i = 0; i < this -> rows * this -> columns; i++)
+        this -> data[i] += m.data[i];
 
     return *(this);
 }
@@ -168,11 +140,8 @@ Matrix<T> Matrix<T>::operator-(const Matrix<T>& m){
     if(this -> rows != m.rows || this -> columns != m.columns) throw "Invalid operation: can't sum matrices of different dimensions";
 
     Matrix result(this -> rows, this -> columns);
-    for(size_t i = 0; i < result.rows; i++){
-        for(size_t j = 0; j < result.columns; j++){
-            result.data[i][j] = this -> data[i][j] - m.data[i][j];
-        }
-    }
+    for(size_t i = 0; i < result.rows * result.columns; i++)
+        result.data[i] = this -> data[i] + m.data[i];
 
     return result;
 }
@@ -181,11 +150,8 @@ template<typename T>
 Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& m){
     if(this -> rows != m.rows || this -> columns != m.columns) throw "Invalid operation: can't sum matrices of different dimensions";
 
-    for(size_t i = 0; i < this -> rows; i++){
-        for(size_t j = 0; j < this -> columns; j++){
-            this -> data[i][j] -= m.data[i][j];
-        }
-    }
+    for(size_t i = 0; i < this -> rows * this -> columns; i++)
+        this -> data[i] -= m.data[i];
 
     return *(this);
 }
@@ -199,7 +165,7 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& m){
     for(size_t i = 0; i < this -> rows; i++){
         for(size_t j = 0; j < m.columns; j++){
             for(size_t k = 0; k < this -> columns; k++){
-                result.data[i][j] += this -> data[i][k] * m.data[k][j];
+                result.data[i * m.columns + j] += this -> data[i * this -> columns + k] * m.data[k * m.columns + j];
             }
         }
     }
@@ -211,11 +177,8 @@ template<typename T>
 Matrix<T> operator*(const T& val, const Matrix<T>& m){
     Matrix<T> result(m);
 
-    for(size_t i = 0; i < result.rows; i++){
-        for(size_t j = 0; j < result.columns; j++){
-            result.data[i][j] *= val;
-        }
-    }
+    for(size_t i = 0; i < result.rows * result.columns; i++)
+        result.data[i] *= val;
 
     return result;
 }
@@ -225,22 +188,16 @@ Matrix<T> Matrix<T>::operator*(const T& val){
 
     Matrix<T> result(*(this));
 
-    for(size_t i = 0; i < result.rows; i++){
-        for(size_t j = 0; j < result.columns; j++){
-            result.data[i][j] *= val;
-        }
-    }
+    for(size_t i = 0; i < result.rows * result.columns; i++)
+        result.data[i] *= val;
 
     return result;
 }
 
 template<typename T>
 Matrix<T>& Matrix<T>::operator*=(const T& val){
-    for(size_t i = 0; i < this -> rows; i++){
-        for(size_t j = 0; j < this -> columns; j++){
-            this -> data[i][j] *= val;
-        }
-    }
+    for(size_t i = 0; i < this -> rows * this -> columns; i++)
+        this -> data[i] *= val;
 
     return *(this);
 }
@@ -251,7 +208,7 @@ Matrix<T> Matrix<T>::transpose(const Matrix<T>& m){
 
     for(size_t i = 0; i < m.rows; i++){
         for(size_t j = 0; j < m.columns; j++){
-            transposed.data[i][j] = m.data[j][i];
+            transposed.data[i * m.rows + j] = m.data[j * m.columns + i];
         }
     }
 
@@ -260,44 +217,44 @@ Matrix<T> Matrix<T>::transpose(const Matrix<T>& m){
 
 template<typename T>
 T Matrix<T>::det(const Matrix<T>& m){
-    T cumulative_sum = 0;
-
     if(m.rows != m.columns) throw "Invalid operation: can't compute the determinant of a non square matrix";
-    else if(m.rows == 0);
-    else if(m.rows == 1) cumulative_sum = m.data[0][0];
-    else if(m.rows == 2) cumulative_sum = (m.data[0][0] * m.data[1][1]) - (m.data[0][1] * m.data[1][0]);
+    else if(m.rows == 0) return 0;
+    else if(m.rows == 1) return m.data[0];
+    else if(m.rows == 2) return (m.data[0] * m.data[3]) - (m.data[1] * m.data[2]);
     else{
-        // implemetation of Laplace expansion (doesnt scale well with bigger matrices: O(n!))
-
-        for(size_t i = 0; i < m.rows; i++){
-            if(m.data[i][0] != 0){
-                Matrix cofactor;
-                cofactor.rows = m.rows - 1;
-                cofactor.columns = m.columns - 1;
-                cofactor.data = new T*[m.rows - 1];
-
-                bool skip_row = false;
-                for(size_t j = 0; j < m.rows; j++){
-                    if(i == j) skip_row = true;
-                    else cofactor.data[j- skip_row] = &(m.data[j][1]);
+        // implementation of gaussian elimination
+        Matrix<T> copy(m);
+        T det = 1;
+        for(size_t i = 0; i < copy.rows - 1; i++){
+            if(copy.data[i * copy.columns + i] == 0){
+                size_t j = i + 1;
+                bool found_pivot = false;
+                while(!found_pivot && j < copy.columns){
+                    if(copy.data[i * copy.columns + i] != 0){
+                        copy.swapRows(i, j);
+                        found_pivot = true;
+                    }
+                    j++;
                 }
-                // std::cout << "Cofactor(" << i << "):\n"<< cofactor << "\n";
-                cumulative_sum += ((i % 2) ? -1 : 1) * Matrix<T>::det(cofactor) * m.data[i][0];
-                // std::cout << "\nPartial sum (" << i << "): " << cumulative_sum << "\n";
 
-                cofactor.data = nullptr;
+                if(!found_pivot) return 0;
+
+                det *= copy.data[i * copy.columns + i];
+                for(size_t j = i + 1; j < copy.rows; j++){
+                    copy.addRow(j, i, -(copy.data[i * copy.columns + j] / copy.data[i * copy.columns + i]));
+                }
+
+                std::cout << copy << std::endl;
             }
         }
+        return det;
     }
-
-    // std::cout << "Determinant = "<< cumulative_sum;
-    return cumulative_sum;
 }
 
 template <typename U>
 std::ostream& operator <<(std::ostream &out, const Matrix<U> &m) {
     for(size_t i = 0; i < m.rows; i++){
-        for(size_t j = 0; j < m.columns; j++) out << (m.data[i][j]) << "\t";
+        for(size_t j = 0; j < m.columns; j++) out << (m.data[i * m.columns + j]) << "\t";
         out << "\n";
     }
 
@@ -307,10 +264,6 @@ std::ostream& operator <<(std::ostream &out, const Matrix<U> &m) {
 template <typename T>
 Matrix<T>::~Matrix(){
     if(this -> data != nullptr){
-        for(size_t i = 0; i < this -> rows; i++) {
-            delete[] this -> data[i];
-            this -> data[i] = nullptr;
-        }
         delete[] this -> data;
         this -> data = nullptr;
     }
@@ -322,25 +275,28 @@ void Matrix<T>::swapRows(size_t row1, size_t row2){
 
     if(row1 >= this -> rows || row2 >= this-> rows) throw "Index out of bounds";
 
-    T* temp = this -> data[row1];
-    this -> data[row1] = this -> data[row2];
-    this -> data[row2] = temp;
+    T temp;
+    for(size_t i = 0; i < this -> columns; i++) {
+        temp = this -> data[row1 * this -> columns + i];
+        this -> data[row1 * this -> columns + i] = this -> data[row2 * this -> columns + i];
+        this -> data[row2 * this -> columns + i] = temp;
+    }
 }
 
 template<typename T>
 void Matrix<T>::multiplyRow(size_t row, T val){
     if(row >= this -> rows) throw "Index out of bounds";
 
-    size_t m = this -> columns;
-    for(int j = 0; j < m; j++) this -> data[row][j] *= val;
+    for(size_t i = 0; i < this -> columns; i++)
+        this -> data[row * this -> columns + i] *= val;
 }
 
 template<typename T>
 void Matrix<T>::addRow(size_t row1, size_t row2, T val){
     if(row1 >= this -> rows || row2 >= this -> rows) throw "Index out of bounds";
 
-    size_t m = this -> columns;
-    for(int j = 0; j < m; j++) this -> data[row1][j] += val * this -> data[row2][j];
+    for(int i = 0; i < this -> columns; i++)
+        this -> data[row1 * this -> columns + i] += val * this -> data[row2 * this -> columns + i];
 }
 
 template<typename T>
