@@ -195,7 +195,7 @@ class Vec {
 template <typename T>
 class Matrix{
     private:
-    T** data;
+    T* data;
     size_t rows, columns;
 
     public:
