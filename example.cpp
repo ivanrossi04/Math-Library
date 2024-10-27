@@ -14,13 +14,11 @@ void* operator new(size_t size){
 }
 
 int main(int argc, char *argv[]){
-    /*
-    int a = 15, b = 42;
+    long a = 15, b = 42;
 
     std::cout << a << " " << b << std::endl;
     swap(&a, &b);
-    std::cout << a << " " << b << std::endl; 
-
+    std::cout << a << " " << b << std::endl;
     std::cout << GCD(a, b) << " " << LCM(a, b) << std::endl;
 
 
@@ -65,8 +63,7 @@ int main(int argc, char *argv[]){
 
     c1 = Complex::inverse(c1);
     std::cout << c1 << "\n";
-    */
-    /*
+    
     std::cout << "\nVector class - Test\n";
 
     float nums[3] = {4,5,1};
@@ -75,31 +72,24 @@ int main(int argc, char *argv[]){
     Vec<float> v3 = Vec<float>({2,3,4});
 
     std::cout << v1 << " | " << v2 << " | " << v3 << "\n";
-    print_allocations();
 
     v1 = Vec<float>({2,1});
     std::cout << v1 << "\n";
-    print_allocations();
-    
+
     v1 = v2 + v3;
     std::cout << v1 << "\n";
-    print_allocations();
     
     v1 += v2;
     std::cout << v1 << "\n";
-    print_allocations();
     
     v1 = v1 - v2;
     std::cout << v1 << "\n";
-    print_allocations();
     
     v1 -= v2;
     std::cout << v1 << "\n";
-    print_allocations();
     
     std::cout << Vec<float>::cross(v1, v2) << "\n";
-    print_allocations();
-    */
+    
 
     std::cout << "Matrix class - Test\n";
     
@@ -111,7 +101,7 @@ int main(int argc, char *argv[]){
     });
     
     std::cout << m1 << "\n\n" << m2 << "\n\n";
-    
+
     m1={{2,1,2},
         {4,-2,0},
         {1,0,4}};
@@ -138,16 +128,20 @@ int main(int argc, char *argv[]){
     std::cout << m1 << "\n";
 
     m3 *= 2;
-    std::cout << Matrix<double>::transpose(m2) << "\n";  
+    std::cout << Matrix<double>::transpose(m2) << "\n";
+
     std::cout << "det(A) = " << Matrix<double>::det(m2) << "\n";
 
     Matrix<double> *result = LPU_decomposition(m2);
-    std::cout << result[0] << "\n" << result[2];
+    std::cout << result[0] << "\n" << result[2] << "\n";
+
     Matrix<double> LU = result[0] * result[2];
     std::cout << "L * U:\n" << LU << "\ndet(LU) = " << Matrix<double>::det(LU) << "\n";
-    std::cout << "P * A:\n" << result[1] * m2;
+
+    std::cout << "P * A:\n" << result[1] * m2 << "\n";
     
     Matrix<double> *QR = QR_decomposition(m2);
+
     std::cout << QR[0] << "\n" << QR[1];
     std::cout << "\n" << QR[0] * QR[1];
 

@@ -1,4 +1,12 @@
 // !V1
+template <typename T> 
+void swap(T* a, T* b){
+    // based on the fact that xor is a reversible operation
+    *b = *a ^ *b;
+    *a = *a ^ *b;
+    *b = *a ^ *b;
+}
+
 // ------- Vector methods implementation -------
 
 template <typename T>
@@ -8,18 +16,20 @@ Vec<T>::Vec(){
 }
 
 template <typename T>
-Vec<T>::Vec(const size_t n){
+Vec<T>::Vec(const size_t& n, const T& val){
     this -> val = new T[n];
     this -> dim = n;
+
+    for(size_t i = 0; i < n; i++) this -> val[i] = val;
 }
 
 template <typename T>
-Vec<T>::Vec(const T arr[],const size_t size){
-    if(size) {
-        this -> dim = size;
-        this -> val = new T[size];
+Vec<T>::Vec(const T arr[],const size_t& n){
+    if(n) {
+        this -> dim = n;
+        this -> val = new T[n];
     
-        for(size_t i = 0; i < size; i++) this -> val[i] = arr[i];
+        for(size_t i = 0; i < n; i++) this -> val[i] = arr[i];
     } else Vec<T>();
 }
 
@@ -39,7 +49,6 @@ Vec<T>::Vec(Vec<T> const& v){
     } else Vec<T>();
 }
 
-
 // Gru, the Vector Destroyer
 template <typename T>
 Vec<T>::~Vec(){
@@ -51,6 +60,7 @@ Vec<T>::~Vec(){
 
 template <typename T>
 void Vec<T>::operator=(Vec<T> const& v){
+    // before assigning a new value it is necessary to delete the old array
     if(this -> val != nullptr) {
         delete[] this -> val;
         this -> val = nullptr;
@@ -82,8 +92,11 @@ size_t Vec<T>::getDim(){
     return this -> dim;
 }
 
+
 template<typename T>
 T Vec<T>::getNorm(){
+    // the norm is calculated as the dot product of the vector with itself
+    // dot(v | v) = x * x + y * y + ...
     return dot(*(this), *(this));
 }
 
@@ -206,9 +219,12 @@ T Vec<T>::dot(const Vec<T>& lhs,const Vec<T>& rhs){
 
 template <typename T>
 Vec<T> Vec<T>::cross(const Vec<T>& lhs,const Vec<T>& rhs){
+    // !can only compute the cross product of three dimensional vectors
+
     if(lhs.dim != lhs.dim) throw "Invalid operation: can't compute the cross product vectors of different dimensions";
     else if(lhs.dim != 3) throw "Invalid operation: can't compute the cross product vectors of dim != 3";
 
+    // the determinant cross product formula is implemented
     Vec<T> result = Vec<T>({
         lhs.val[1] * rhs.val[2] - lhs.val[2] * rhs.val[1],
         lhs.val[2] * rhs.val[0] - lhs.val[0] * rhs.val[2],
@@ -220,7 +236,9 @@ Vec<T> Vec<T>::cross(const Vec<T>& lhs,const Vec<T>& rhs){
 
 template <typename U>
 std::ostream& operator <<(std::ostream &out, const Vec<U> &v) {
-    for(size_t i = 0; i < v.dim; i++) out << v.val[i] << "\t";
+
+    // print example: std::cout << Vector<int> v(1,2); -> 1 2
+    for(size_t i = 0; i < v.dim; i++) out << v.val[i] << (i == v.dim - 1 ? "" : "\t");
 
     return out;
 }

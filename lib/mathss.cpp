@@ -13,8 +13,8 @@ Fraction::Fraction(){
 }
 
 Fraction::Fraction(long long numerator, long long denominator){
-    this -> numerator = abs(numerator);
-    this -> denominator = abs(denominator);
+    this -> numerator = llabs(numerator);
+    this -> denominator = llabs(denominator);
     this -> sign = (numerator < 0) ^ (denominator < 0);
     
     simplify(this);
@@ -36,11 +36,14 @@ Fraction::~Fraction(){}
 void Fraction::simplify(Fraction *frac){
     if(frac -> numerator == 0) frac -> denominator = 1;
     else {
+
+        // number precision cutoff: if a fraction is too precise it gets approximated
         while(frac -> denominator >= 10 && frac -> numerator * frac -> denominator > 2E14){
-            frac -> numerator /= 10;
+            frac -> numerator /= 10 + (frac -> numerator % 10 >=5);
             frac -> denominator /= 10;
         }
 
+        // find the greatest common divisor between numerator & denominator to simplify the fraction
         int simplify = GCD(frac -> numerator, frac -> denominator);
 
         frac -> numerator /= simplify;
@@ -61,10 +64,12 @@ int Fraction::getSign(){
 }
 
 Fraction::operator float() const&{
+    // returns the division between numerator and denominator
     return ((float) numerator / denominator * (sign ? -1 : 1));
 }
 
 Fraction::operator double() const&{
+    // returns the division between numerator and denominator
     return ((double) numerator / denominator * (sign ? -1 : 1));
 }
 
@@ -82,10 +87,12 @@ inline bool Fraction::operator!=(const Fraction& rhs){
 }
 
 inline bool Fraction::operator<(const Fraction& rhs){
+    // the match is done between the fraction converted to floats
     return (float) (*this) < (float)(rhs);
 }
 
 inline bool Fraction::operator>(const Fraction& rhs){
+    // the match is done between the fraction converted to floats
     return (float) (*this) > (float) (rhs);
 }
 
@@ -100,16 +107,23 @@ inline bool Fraction::operator>=(const Fraction& rhs){
 Fraction Fraction::operator+(const Fraction& frac){
     Fraction result;
 
+    // result sign initialization
     result.sign = this -> sign;
 
+    // denominator is set to the Lowest Common Denominator
     result.denominator = LCM(this -> denominator, frac.denominator);
 
+    // the addends are calculated multiplying by the fraction with the LCD
     unsigned int add1 = this -> numerator * (result.denominator / this -> denominator);
     unsigned int add2 = frac.numerator * (result.denominator /  frac.denominator);
 
+    // if the fraction have the same sign simply add the numerators
     if(this -> sign == frac.sign){
         result.numerator = add1 + add2;
     } else {
+        // a subtraction between unsigned integers is performed
+
+        // need to check which number is bigger to avoid underflow
         if(add1 < add2){
             swap(&add1, &add2);
             result.sign = !(this -> sign);
@@ -151,19 +165,26 @@ Fraction Fraction::operator++(int){
 Fraction Fraction::operator-(const Fraction& frac){
     Fraction result;
 
+    // result sign initialization
     result.sign = this -> sign;
+
+    // denominator is set to the Lowest Common Denominator
     result.denominator = LCM(this -> denominator, frac.denominator);
 
+    // the operands are calculated multiplying by the fraction with the LCD
     unsigned int add1 = this -> numerator * (result.denominator / this -> denominator);
     unsigned int add2 = frac.numerator * (result.denominator /  frac.denominator);
 
     if(this -> sign == frac.sign){
+        // the subtraction is performed
+
         if(add1 < add2){
             swap(&add1, &add2);
             result.sign = !(this -> sign);
         }
         result.numerator = add1 - add2;
     } else {
+        // if signs are different the operation becomes a sum
         result.numerator = add1 + add2;
     }
 
@@ -200,13 +221,17 @@ Fraction Fraction::operator--(int){
 
 Fraction Fraction::operator*(const Fraction& frac){
 
+    // cross simplifications are calculated to keep the multiplication at lowest terms possible
     int cross_simplify1 = GCD(this -> numerator, frac.denominator);
     int cross_simplify2 = GCD(this -> denominator, frac.numerator);
 
     Fraction result;
-    result.numerator = this -> numerator / cross_simplify1 * frac.numerator / cross_simplify2;
-    result.denominator = this -> denominator / cross_simplify2 * frac.denominator / cross_simplify1;
+
+    // the multiplication is performed, simplifying before the actual operation
+    result.numerator = (this -> numerator / cross_simplify1) * (frac.numerator / cross_simplify2);
+    result.denominator = (this -> denominator / cross_simplify2) * (frac.denominator / cross_simplify1);
     result.sign = this -> sign ^ frac.sign;
+
     return result;
 }
 
@@ -228,7 +253,10 @@ Fraction& Fraction::operator*=(double const& num){
 }
 
 Fraction Fraction::operator/(const Fraction& frac){
+    // throwing possible exception
     if(frac.numerator == 0) throw "Invalid operation: can't divide by zero";
+
+    // division is performed like a multiplication with the inverse fraction of the second operand
 
     int cross_simplify1 = GCD(this -> numerator, frac.numerator);
     int cross_simplify2 = GCD(this -> denominator, frac.denominator);
@@ -241,42 +269,25 @@ Fraction Fraction::operator/(const Fraction& frac){
 }
 
 Fraction& Fraction::operator/=(const Fraction& frac){
-    try{
-        *this = *this / frac;
-    } catch(char* err){
-        throw err;
-    }
+    *this = *this / frac;
     return *this;
 }
 
 Fraction Fraction::operator/(const double& num){
-    try{
-        return operator/(Fraction(num));
-    } catch(char* err){
-        throw err;
-        return *this;
-    }
+    return operator/(Fraction(num));
 }
 
 Fraction operator/(const double& num, const Fraction& frac){
-    try{
-        return Fraction(num).operator/(frac);
-    } catch(char* err){
-        throw err;
-        return frac;
-    }
+    return Fraction(num).operator/(frac);
 }
 
 Fraction& Fraction::operator/=(const double& num){
-    try{
-        return operator/=(Fraction(num));
-    } catch(char* err){
-        throw err;
-        return *this;
-    }
+    return operator/=(Fraction(num));
 }
 
 std::ostream& operator <<(std::ostream& out, const Fraction& f) {
+
+    // print example: std::cout << Fraction(-2, 1); -> -2/1
     out << (f.sign ? "-" : "") << f.numerator << "/" << f.denominator;
 
     return out;
@@ -297,6 +308,7 @@ Complex::Complex(Complex& c){
     this -> a = c.a;
     this -> b = c.b;
 }
+
 
 bool Complex::operator==(const Complex& c){return this -> a == c.a && this -> b == c.b;}
 bool Complex::operator!=(const Complex& c){return !operator==(c);}
@@ -349,13 +361,13 @@ Complex& Complex::operator*=(const Complex& c){
 }
 
 Complex Complex::operator/(const Complex& c){
-    Complex result = operator*(conjugate(c)) / norm(c);
+    Complex result = operator*(inverse(c));
     return result;
 }
 
 Complex& Complex::operator/=(const Complex& c){
-    operator*=(conjugate(c));
-    return operator/=(norm(c));
+    operator*=(inverse(c));
+    return *(this);
 }
 
 Complex Complex::operator*(const double& n){
@@ -365,6 +377,7 @@ Complex Complex::operator*(const double& n){
     );
     return result;
 }
+
 Complex operator*(const double& n, const Complex& c){
     Complex result(
         c.a * n,
@@ -410,11 +423,14 @@ Complex Complex::conjugate(const Complex& c){
 }
 
 Complex Complex::inverse(const Complex& c){
+    // the inverse is calculated as 1/z = 1/(a+bi) * (a-bi)/(a-bi) = (a-bi)/(a^2+b^2)
     return Complex::conjugate(c) / Complex::norm(c);
 }
 
 Complex Complex::cpow(const Complex& c, const int exp){
+    // based on deMoivre's formula (cos(x) + i sin(x))^n = (cos(nx) + i sin(nx))
     if(exp){
+
         double length = pow(mod(c), exp);
         double theta = Complex::Arg(c);
         Complex result(
@@ -429,13 +445,17 @@ Complex Complex::cpow(const Complex& c, const int exp){
 }
 
 Complex* Complex::croot(const Complex& c,const unsigned int exp){
+    // based on deMoivre's formula
     if(exp){
         double length = pow(mod(c), 1/exp);
         double theta = Complex::Arg(c);
 
         Complex *results = new Complex[exp];
         for(int i = 0; i < exp; i++){
+            // arg(z_k) = (arg(Z) + 2kPI) / n
             double root_theta = (theta + 2 * i * M_PI) / exp;
+
+            // z_k = mod(Z)(cos(arg(z_k)) + i sin(arg(z_k)))
             results[i] = length * Complex(
                 cos(root_theta),
                 sin(root_theta)
@@ -448,7 +468,9 @@ Complex* Complex::croot(const Complex& c,const unsigned int exp){
 }
 
 std::ostream& operator <<(std::ostream& out,const Complex& c) {
-    out << c.a << " + " << c.b << " i";
+
+    // print example: std::cout << Complex(-2, -1); -> -2-1i
+    out << c.a << (c.b >= 0 ? "+" : "") << c.b << "i";
 
     return out;
 }
@@ -456,14 +478,8 @@ std::ostream& operator <<(std::ostream& out,const Complex& c) {
 
 // ------- General functions implementation -------
 
-template <typename T>
-void swap(T *a, T *b){
-    *b = *a ^ *b;
-    *a = *a ^ *b;
-    *b = *a ^ *b;
-}
-
 int GCD(unsigned long long a, unsigned long long b){
+    // implementation of euclidean algorithm
     if(b == 0) return a;
     if(a == 0) return b;
     if(a < b) swap(&a, &b);
