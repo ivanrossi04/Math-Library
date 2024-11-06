@@ -184,82 +184,6 @@ class Complex{
 };
 
 template <typename T>
-class Vec {
-    private:
-    T *val;
-    size_t dim;
-
-    public:
-
-    // initialize a 0 dimension vector
-    Vec();
-
-    // initialize an n-dimensional vector to a given value(default is 0)
-    Vec(const size_t& n, const T& val = 0);
-
-    // initialize an n-dimensional vector from values stored in an array
-    Vec(const T arr[],const size_t& n);
-
-    // initialize a vector from an initializer list; format like: ({num-1, num-2, ... , num-n})
-    Vec(const std::initializer_list<T>& arr);
-
-    // copy constructor
-    Vec(const Vec<T>& v);
-
-    ~Vec();
-
-    // initializer list assignment operator
-    void operator=(const std::initializer_list<T> & arr);
-
-    // copy assignment operator
-    void operator=(const Vec<T>& v);
-
-    // move operator
-    void operator=(Vec<T>&& v);
-
-    // equality operator check for a match of every element of the vectors
-    inline bool operator==(const Vec<T>& rhs);
-    inline bool operator!=(const Vec<T>& rhs);
-
-    // confrontation operators use norm to solve the inequalities
-    inline bool operator< (const Vec<T>& rhs);
-    inline bool operator> (const Vec<T>& rhs);
-    inline bool operator<=(const Vec<T>& rhs);
-    inline bool operator>=(const Vec<T>& rhs);
-
-    // returns the vectors' dimension
-    size_t getDim();
-
-    // returns norm of the vector, calculated as the sum of squares of the single elements
-    T getNorm();
-
-    // get an element of the vector
-    T& operator[](size_t index);
-
-    // mathematical operation between vectors and multiplication with scalar value
-    Vec<T> operator+(const Vec<T>& vec);
-    Vec<T>& operator+=(const Vec<T>& vec);
-    Vec<T> operator-(const Vec<T>& vec);
-    Vec<T>& operator-=(const Vec<T>& vec);
-    Vec<T> operator*(const T& val);
-    
-    template<typename U> friend Vec<U> operator*(const U& val, const Vec<U>& vec);
-    Vec<T>& operator*=(const T& val);
-
-    // returns the dot product between vectors of the same dimension 
-    static T dot(const Vec<T>& lhs,const Vec<T>& rhs);
-
-    // calculates the cross product of 3 dimensional vectors
-    static Vec<T> cross(const Vec<T>& lhs,const Vec<T>& rhs);
-
-    // print operator overload
-    template<typename U> friend std::ostream& operator <<(std::ostream &out,const Vec<U> &v);
-};
-
-// include template vector class implementation
-#include "Vec.ipp"
-
-template <typename T>
 class Matrix{
     private:
     T* data;
@@ -340,6 +264,83 @@ Matrix<T>* LPU_decomposition(const Matrix<T> &m);
 template<typename T>
 Matrix<T>* QR_decomposition(const Matrix<T> &m);
 
+template <typename T>
+class Vec {
+    private:
+    T *val;
+    size_t dim;
+
+    public:
+
+    // initialize a 0 dimension vector
+    Vec();
+
+    // initialize an n-dimensional vector to a given value(default is 0)
+    Vec(const size_t& n, const T& val = 0);
+
+    // initialize an n-dimensional vector from values stored in an array
+    Vec(const T arr[],const size_t& n);
+
+    // initialize a vector from an initializer list; format like: ({num-1, num-2, ... , num-n})
+    Vec(const std::initializer_list<T>& arr);
+
+    // copy constructor
+    Vec(const Vec<T>& v);
+
+    ~Vec();
+
+    // initializer list assignment operator
+    void operator=(const std::initializer_list<T> & arr);
+
+    // copy assignment operator
+    void operator=(const Vec<T>& v);
+
+    // move operator
+    void operator=(Vec<T>&& v);
+
+    // equality operator check for a match of every element of the vectors
+    inline bool operator==(const Vec<T>& rhs);
+    inline bool operator!=(const Vec<T>& rhs);
+
+    // confrontation operators use norm to solve the inequalities
+    inline bool operator< (const Vec<T>& rhs);
+    inline bool operator> (const Vec<T>& rhs);
+    inline bool operator<=(const Vec<T>& rhs);
+    inline bool operator>=(const Vec<T>& rhs);
+
+    // returns the vectors' dimension
+    size_t getDim();
+
+    // returns norm of the vector, calculated as the sum of squares of the single elements
+    T getNorm();
+
+    // get an element of the vector
+    T& operator[](size_t index);
+
+    explicit operator Matrix<T>() const&;
+
+    // mathematical operation between vectors and multiplication with scalar value
+    Vec<T> operator+(const Vec<T>& vec);
+    Vec<T>& operator+=(const Vec<T>& vec);
+    Vec<T> operator-(const Vec<T>& vec);
+    Vec<T>& operator-=(const Vec<T>& vec);
+    Vec<T> operator*(const T& val);
+    
+    template<typename U> friend Vec<U> operator*(const U& val, const Vec<U>& vec);
+    Vec<T>& operator*=(const T& val);
+
+    // returns the dot product between vectors of the same dimension 
+    static T dot(const Vec<T>& lhs,const Vec<T>& rhs);
+
+    // calculates the cross product of 3 dimensional vectors
+    static Vec<T> cross(const Vec<T>& lhs,const Vec<T>& rhs);
+
+    // print operator overload
+    template<typename U> friend std::ostream& operator <<(std::ostream &out,const Vec<U> &v);
+};
+
+// include template vector class implementation
+#include "Vec.ipp"
 
 // include template matrix class implementation
 #include "Matrix.ipp"

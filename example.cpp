@@ -66,14 +66,14 @@ int main(int argc, char *argv[]){
     
     std::cout << "\nVector class - Test\n";
 
-    float nums[3] = {4,5,1};
-    Vec<float> v1;
-    Vec<float> v2(nums, 3);
-    Vec<float> v3({2,3,4});
+    double nums[3] = {4,5,1};
+    Vec<double> v1;
+    Vec<double> v2(nums, 3);
+    Vec<double> v3({2,3,4});
 
     std::cout << v1 << " | " << v2 << " | " << v3 << "\n";
 
-    v1 = Vec<float>({2,1});
+    v1 = Vec<double>({2,1});
     std::cout << v1 << "\n";
 
     v1 = v2 + v3;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]){
     v1 -= v2;
     std::cout << v1 << "\n";
     
-    std::cout << Vec<float>::cross(v1, v2) << "\n";
+    std::cout << Vec<double>::cross(v1, v2) << "\n";
     
 
     std::cout << "Matrix class - Test\n";
@@ -144,6 +144,10 @@ int main(int argc, char *argv[]){
 
     std::cout << QR[0] << "\n" << QR[1];
     std::cout << "\n" << QR[0] * QR[1];
+
+    std::cout << (Matrix<double>) v1;
+
+    std::cout << m2 * Matrix<double>::transpose((Matrix<double>) v1);
 
     print_allocations();
 

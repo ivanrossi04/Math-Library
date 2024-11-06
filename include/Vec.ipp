@@ -1,3 +1,4 @@
+#include "mathss.hpp"
 // !V1
 template <typename T> 
 void swap(T* a, T* b){
@@ -105,6 +106,17 @@ T& Vec<T>::operator[](size_t index){
     if(index >= this -> dim) throw "Index out of bounds";
     return this -> val[index];
 }
+
+template<typename T>
+Vec<T>::operator Matrix<T>() const&{
+    Matrix<T> cast = Matrix<T>(1, this -> dim);
+
+    for(size_t i = 0; i < this -> dim; i++) {
+        cast[0][i] =  this -> val[i];
+    }
+
+    return cast;
+};
 
 template<typename T> bool Vec<T>::operator==(const Vec<T>& rhs){
     if(this -> dim != rhs.dim) return false;
