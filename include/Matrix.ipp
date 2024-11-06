@@ -29,7 +29,7 @@ Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& matrix)
         this -> data = new T[this -> rows * this -> columns];
 
         size_t i = 0;
-        for(std::initializer_list row: matrix){
+        for(std::initializer_list<T> row: matrix){
             for(T element: row){
                 this -> data[i] = element;
                 i++;

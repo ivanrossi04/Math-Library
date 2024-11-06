@@ -23,9 +23,9 @@ int main(int argc, char *argv[]){
 
 
     std::cout << "\nFraction class - Test\n";
-    Fraction f1 = Fraction();
-    Fraction f2 = Fraction(2, 10);
-    Fraction f3 = Fraction(-3.0);
+    Fraction f1;
+    Fraction f2(2, 10);
+    Fraction f3(-3.0);
     Fraction f4 = 4.5;
     Fraction f5 = f1;
 
@@ -44,9 +44,9 @@ int main(int argc, char *argv[]){
 
     std::cout<< "\nComplex class - Test\n";
 
-    Complex c1 = Complex();
-    Complex c2 = Complex(3.4, 2);
-    Complex c3 = Complex(c2);
+    Complex c1;
+    Complex c2(3.4, 2);
+    Complex c3(c2);
     
     std::cout << c1 << " | " << c2 << " | " << c3 << "\n"; 
 
@@ -67,9 +67,9 @@ int main(int argc, char *argv[]){
     std::cout << "\nVector class - Test\n";
 
     float nums[3] = {4,5,1};
-    Vec<float> v1 = Vec<float>();
-    Vec<float> v2 = Vec<float>(nums, 3);
-    Vec<float> v3 = Vec<float>({2,3,4});
+    Vec<float> v1;
+    Vec<float> v2(nums, 3);
+    Vec<float> v3({2,3,4});
 
     std::cout << v1 << " | " << v2 << " | " << v3 << "\n";
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
 
     std::cout << "Matrix class - Test\n";
     
-    Matrix<double> m1 = Matrix<double>();
+    Matrix<double> m1;
     Matrix<double> m2({
         {2,3,4},
         {2,3,6},
