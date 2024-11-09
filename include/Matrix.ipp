@@ -244,6 +244,49 @@ Matrix<T> Matrix<T>::transpose(const Matrix<T>& m){
 }
 
 template<typename T>
+Matrix<T> Matrix<T>::invert(Matrix<T> m){
+    Matrix<T> inverse = Matrix<T>::identity(m.columns);
+
+    // every operation on the matrix m is repeated on the inverse matrix
+
+    for(size_t i = 0; i < m.rows; i++){
+        if(m.data[i * m.columns + i] == 0){
+            size_t j = i + 1;
+
+            // search pivot on the current column
+            bool found_pivot = false;
+            while(!found_pivot && j < m.columns){
+                if(m.data[j * m.columns + i] != 0){
+                    inverse.swapRows(i, j);
+
+                    m.swapRows(i, j);
+                    found_pivot = true;
+                }
+                j++;
+            }
+
+            // if a pivot is not found the matrix is singular
+            if(!found_pivot) throw "Error: The given matrix is singular (non invertible)";
+        }
+
+        // operations on the rows below the current to eliminate the cells below the pivot
+        for(size_t j = 0; j < m.rows; j++){
+            if(j != i){
+                inverse.addRow(j, i, -(m.data[j * m.columns + i] / m.data[i * m.columns + i]));
+                m.addRow(j, i, -(m.data[j * m.columns + i] / m.data[i * m.columns + i]));
+            }
+        }
+
+        inverse.multiplyRow(i, 1.0 / m.data[i * m.columns + i]);
+        m.multiplyRow(i, 1.0 / m.data[i * m.columns + i]);
+
+        std::cout << m << "\n" << inverse << "\n\n";
+    }
+
+    return inverse;
+}
+
+template<typename T>
 T Matrix<T>::det(const Matrix<T>& m){
     if(m.rows != m.columns) throw "Invalid operation: can't compute the determinant of a non square matrix";
     else if(m.rows == 0) return 0;

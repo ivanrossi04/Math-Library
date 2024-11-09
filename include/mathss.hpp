@@ -249,6 +249,9 @@ class Matrix{
     // returns the transposed matrix of the given one
     static Matrix<T> transpose(const Matrix<T>& m);
 
+    // returns the inverse matrix of the given one (throws exception if the matrix is not invertible)
+    static Matrix<T> invert(Matrix<T> m);
+
     // computes the determinant of the given matrix; uses computational formulas until 3 dimension, gaussian elimination is used for bigger matrices
     static T det(const Matrix<T>& m);
 

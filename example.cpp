@@ -149,6 +149,8 @@ int main(int argc, char *argv[]){
 
     std::cout << m2 * Matrix<double>::transpose((Matrix<double>) v1);
 
+    std::cout << Matrix<double>::invert(m2);
+
     print_allocations();
 
     return 0;
