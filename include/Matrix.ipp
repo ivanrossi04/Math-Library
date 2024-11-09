@@ -279,8 +279,6 @@ Matrix<T> Matrix<T>::invert(Matrix<T> m){
 
         inverse.multiplyRow(i, 1.0 / m.data[i * m.columns + i]);
         m.multiplyRow(i, 1.0 / m.data[i * m.columns + i]);
-
-        std::cout << m << "\n" << inverse << "\n\n";
     }
 
     return inverse;
